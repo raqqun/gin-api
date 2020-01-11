@@ -7,7 +7,7 @@ import (
     "github.com/gin-gonic/gin"
     "github.com/jinzhu/gorm"
 
-    "github.com/raqqun/gin-api-test/models"
+    "github.com/raqqun/gin-api/models"
 )
 
 func UsersRoutes(api *gin.RouterGroup, db *gorm.DB) {

@@ -9,9 +9,9 @@ import (
     "github.com/jinzhu/gorm"
     _ "github.com/jinzhu/gorm/dialects/sqlite"
 
-    "github.com/raqqun/gin-api-test/routes"
-    "github.com/raqqun/gin-api-test/config"
-    "github.com/raqqun/gin-api-test/models"
+    "github.com/raqqun/gin-api/routes"
+    "github.com/raqqun/gin-api/config"
+    "github.com/raqqun/gin-api/models"
 )
 
 func initDB() *gorm.DB {

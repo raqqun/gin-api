@@ -1,4 +1,4 @@
-module github.com/raqqun/gin-api-test
+module github.com/raqqun/gin-api
 
 go 1.13
 
