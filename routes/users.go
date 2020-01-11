@@ -26,7 +26,18 @@ func UsersRoutes(api *gin.RouterGroup, db *gorm.DB) {
     })
 
     api.GET("/users/:id", func(c *gin.Context) {
-        return
+        id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+
+        users := models.Users{}
+
+        results, err := users.FindByID(db, uint(id))
+
+        if err != nil {
+            c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+            return
+        }
+
+        c.JSON(http.StatusOK, results)
     })
 
     api.POST("/users", func (c *gin.Context) {

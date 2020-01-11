@@ -3,6 +3,7 @@ package models
 import (
     "errors"
     "time"
+    // "log"
     "golang.org/x/crypto/bcrypt"
 
     "github.com/jinzhu/gorm"
@@ -76,10 +77,6 @@ func (u *Users) FindAll(db *gorm.DB) (*[]Users, error) {
 func (u *Users) FindByID(db *gorm.DB, id uint) (*Users, error) {
 
     err := db.Model(&Users{}).Where("id = ?", id).Take(&u).Error
-
-    if err != nil {
-        return &Users{}, err
-    }
 
     if gorm.IsRecordNotFoundError(err) {
         return &Users{}, errors.New("User Not Found")
