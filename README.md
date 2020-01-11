@@ -4,8 +4,8 @@ A blog api using golang and go-gin for learning
 
 # Run
 
-go run main.go
+`go run main.go`
 
 # Build
 
-go build .
+`go build .`
