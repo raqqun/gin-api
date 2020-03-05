@@ -5,18 +5,18 @@ import (
     "strconv"
 
     "github.com/gin-gonic/gin"
-    "github.com/jinzhu/gorm"
 
     "github.com/raqqun/gin-api/models"
+    "github.com/raqqun/gin-api/middleware"
 )
 
-func UsersRoutes(api *gin.RouterGroup, db *gorm.DB) {
+func UsersRoutes(api *gin.RouterGroup) {
 
     api.GET("/users", func (c *gin.Context) {
 
         users := models.Users{}
 
-        results, err := users.FindAll(db)
+        results, err := users.FindAll()
         if err != nil {
             c.JSON(http.StatusOK, results)
             return
@@ -30,7 +30,7 @@ func UsersRoutes(api *gin.RouterGroup, db *gorm.DB) {
 
         users := models.Users{}
 
-        results, err := users.FindByID(db, uint(id))
+        results, err := users.FindByID(uint(id))
 
         if err != nil {
             c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -40,60 +40,69 @@ func UsersRoutes(api *gin.RouterGroup, db *gorm.DB) {
         c.JSON(http.StatusOK, results)
     })
 
-    api.POST("/users", func (c *gin.Context) {
+    api.POST("/users",
+        jwt.JWT().MiddlewareFunc(),
+        func (c *gin.Context) {
 
-        user := models.Users{}
-        err := c.ShouldBindJSON(&user)
-        if err != nil {
-            c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
-            return
-        }
+            user := models.Users{}
+            err := c.ShouldBindJSON(&user)
+            if err != nil {
+                c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+                return
+            }
 
-        userCreated, err := user.Save(db)
+            userCreated, err := user.Save()
 
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
+            if err != nil {
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+            }
 
-        c.JSON(http.StatusCreated, userCreated)
-    })
+            c.JSON(http.StatusCreated, userCreated)
+        },
+    )
 
-    api.PUT("/users/:id", func (c *gin.Context) {
-        id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+    api.PUT("/users/:id",
+        jwt.JWT().MiddlewareFunc(),
+        func (c *gin.Context) {
+            id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 
-        user := models.Users{}
-        user.ID = uint(id)
+            user := models.Users{}
+            user.ID = uint(id)
 
-        err := c.ShouldBindJSON(&user)
-        if err != nil {
-            c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
-            return
-        }
+            err := c.ShouldBindJSON(&user)
+            if err != nil {
+                c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+                return
+            }
 
-        userUpdated, err := user.Update(db)
+            userUpdated, err := user.Update()
 
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
+            if err != nil {
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+            }
 
-        c.JSON(http.StatusCreated, userUpdated)
-    })
+            c.JSON(http.StatusCreated, userUpdated)
+        },
+    )
 
-    api.DELETE("/users/:id", func (c *gin.Context) {
-        id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+    api.DELETE("/users/:id",
+        jwt.JWT().MiddlewareFunc(),
+        func (c *gin.Context) {
+            id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 
-        user := models.Users{}
+            user := models.Users{}
 
-        _, err := user.Delete(db, uint(id))
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
+            _, err := user.Delete(uint(id))
+            if err != nil {
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+            }
 
-        c.String(http.StatusOK, "OK")
-    })
+            c.String(http.StatusOK, "OK")
+        },
+    )
 
 
 

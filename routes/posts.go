@@ -5,14 +5,17 @@ import (
     "fmt"
 
     "github.com/gin-gonic/gin"
-    "github.com/jinzhu/gorm"
+    "github.com/raqqun/gin-api/middleware"
 )
 
-func PostsRoutes(api *gin.RouterGroup, db *gorm.DB) {
+func PostsRoutes(api *gin.RouterGroup) {
 
-    api.POST("/posts", func (c *gin.Context) {
-        c.JSON(http.StatusCreated, gin.H{"message": "/posts", "status": http.StatusCreated})
-    })
+    api.POST("/posts",
+        jwt.JWT().MiddlewareFunc(),
+        func (c *gin.Context) {
+            c.JSON(http.StatusCreated, gin.H{"message": "/posts", "status": http.StatusCreated})
+        },
+    )
 
     api.GET("/posts", func (c *gin.Context) {
         c.JSON(http.StatusOK, gin.H{"message": "/posts", "status": http.StatusOK})

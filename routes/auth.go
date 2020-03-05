@@ -4,16 +4,37 @@ import (
     "net/http"
 
     "github.com/gin-gonic/gin"
-    "github.com/jinzhu/gorm"
+
+
+    "github.com/raqqun/gin-api/middleware"
+    "github.com/raqqun/gin-api/models"
 )
 
-func AuthRoutes(api *gin.RouterGroup, db *gorm.DB) {
 
-    api.POST("/auth/signup", func (c *gin.Context) {
-        c.JSON(http.StatusOK, gin.H{"message": "ok"})
-    })
+func AuthRoutes(api *gin.RouterGroup) {
 
-    api.POST("/auth/login", func (c *gin.Context) {
-        c.JSON(http.StatusOK, gin.H{"message": "ok"})
-    })
+    api.POST("/auth/login", jwt.JWT().LoginHandler)
+    api.GET("/auth/refresh", jwt.JWT().RefreshHandler)
+
+    api.POST("/auth/signup",
+        func (c *gin.Context) {
+            user := models.Users{}
+            err := c.ShouldBindJSON(&user)
+            if err != nil {
+                c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+                return
+            }
+
+            userCreated, err := user.Save()
+
+            if err != nil {
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+            }
+
+            c.JSON(http.StatusCreated, userCreated)
+        },
+    )
 }
+
+
