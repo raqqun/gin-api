@@ -16,11 +16,15 @@ type Users struct {
     Password    string      `gorm:"size:100;not null;" json:"password,omitempty"`
     CreatedAt   time.Time   `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
     UpdatedAt   time.Time   `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+    getpassword bool
 }
 
 
 func (u *Users) AfterFind() (err error) {
-    u.Password = ""
+    if !u.getpassword {
+        u.Password = ""
+    }
+
     return
 }
 
@@ -35,7 +39,7 @@ func (u *Users) BeforeSave(scope *gorm.Scope) (err error) {
     return
 }
 
-func (u *Users) Save(db *gorm.DB) (*Users, error) {
+func (u *Users) Save() (*Users, error) {
 
     err := db.Create(&u).Error
 
@@ -48,20 +52,20 @@ func (u *Users) Save(db *gorm.DB) (*Users, error) {
     return u, nil
 }
 
-func (u *Users) Update(db *gorm.DB) (*Users, error) {
+func (u *Users) Update() (*Users, error) {
 
     err := db.Model(&u).Omit("id").Updates(&u).Take(&u).Error
 
-    if err != nil {
-        return nil, err
+    if gorm.IsRecordNotFoundError(err) {
+        return &Users{}, errors.New("User Not Found")
     }
 
     u.Password = ""
 
-    return u, nil
+    return u, err
 }
 
-func (u *Users) FindAll(db *gorm.DB) (*[]Users, error) {
+func (u *Users) FindAll() (*[]Users, error) {
 
     users := []Users{}
 
@@ -74,7 +78,21 @@ func (u *Users) FindAll(db *gorm.DB) (*[]Users, error) {
     return &users, err
 }
 
-func (u *Users) FindByID(db *gorm.DB, id uint) (*Users, error) {
+func (u *Users) FindOne(filter interface{}, shouldHavePassword bool) (*Users, error) {
+    if shouldHavePassword {
+        u.getpassword = true
+    }
+
+    err := db.Model(&Users{}).Where(filter).Take(&u).Error
+
+    if gorm.IsRecordNotFoundError(err) {
+        return &Users{}, errors.New("User Not Found")
+    }
+
+    return u, err
+}
+
+func (u *Users) FindByID(id uint) (*Users, error) {
 
     err := db.Model(&Users{}).Where("id = ?", id).Take(&u).Error
 
@@ -85,7 +103,7 @@ func (u *Users) FindByID(db *gorm.DB, id uint) (*Users, error) {
     return u, err
 }
 
-func (u *Users) Delete(db *gorm.DB, id uint) (uint, error) {
+func (u *Users) Delete(id uint) (uint, error) {
 
     err := db.Model(&Users{}).Where("id = ?", id).Delete(&Users{}).Error
 
@@ -100,6 +118,6 @@ func (u *Users) hashPassword(password string) ([]byte, error) {
     return bcrypt.GenerateFromPassword([]byte(password), 10)
 }
 
-func (u *Users) verifyPassword(hash string, password string) error {
+func (u *Users) VerifyPassword(hash string, password string) error {
     return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
