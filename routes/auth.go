@@ -1,40 +1,36 @@
 package routes
 
 import (
-    "net/http"
+	"net/http"
 
-    "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 
-
-    "github.com/raqqun/gin-api/middleware"
-    "github.com/raqqun/gin-api/models"
+	jwt "github.com/raqqun/gin-api/middleware"
+	"github.com/raqqun/gin-api/models"
 )
-
 
 func AuthRoutes(api *gin.RouterGroup) {
 
-    api.POST("/auth/login", jwt.JWT().LoginHandler)
-    api.GET("/auth/refresh", jwt.JWT().RefreshHandler)
+	api.POST("/auth/login", jwt.JWT().LoginHandler)
+	api.GET("/auth/refresh", jwt.JWT().RefreshHandler)
 
-    api.POST("/auth/signup",
-        func (c *gin.Context) {
-            user := models.Users{}
-            err := c.ShouldBindJSON(&user)
-            if err != nil {
-                c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
-                return
-            }
+	api.POST("/auth/signup",
+		func(c *gin.Context) {
+			user := models.Users{}
+			err := c.ShouldBindJSON(&user)
+			if err != nil {
+				c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+				return
+			}
 
-            userCreated, err := user.Save()
+			userCreated, err := user.Save()
 
-            if err != nil {
-                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-                return
-            }
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
 
-            c.JSON(http.StatusCreated, userCreated)
-        },
-    )
+			c.JSON(http.StatusCreated, userCreated)
+		},
+	)
 }
-
-
