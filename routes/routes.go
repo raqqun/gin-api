@@ -7,8 +7,7 @@ import (
 	// "github.com/raqqun/gin-api/middleware"
 )
 
-// here we initialize all routes
-
+// API initializes all routes
 func API(r *gin.Engine) {
 	api := r.Group("/api")
 	{

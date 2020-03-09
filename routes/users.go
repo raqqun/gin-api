@@ -10,6 +10,7 @@ import (
 	"github.com/raqqun/gin-api/models"
 )
 
+// UsersRoutes defines posts related routes
 func UsersRoutes(api *gin.RouterGroup) {
 
 	api.GET("/users", func(c *gin.Context) {

@@ -9,6 +9,7 @@ import (
 	"github.com/raqqun/gin-api/models"
 )
 
+// AuthRoutes defines authentication related routes
 func AuthRoutes(api *gin.RouterGroup) {
 
 	api.POST("/auth/login", jwt.JWT().LoginHandler)

@@ -8,6 +8,7 @@ import (
 	jwt "github.com/raqqun/gin-api/middleware"
 )
 
+// PostsRoutes defines posts related routes
 func PostsRoutes(api *gin.RouterGroup) {
 
 	api.POST("/posts",
