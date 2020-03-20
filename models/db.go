@@ -7,6 +7,8 @@ import (
 	"strconv"
 
 	"github.com/jinzhu/gorm"
+
+	// get mysql dialect for gorm
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
