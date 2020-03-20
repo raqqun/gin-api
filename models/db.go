@@ -12,6 +12,7 @@ import (
 
 var db *gorm.DB
 
+// InitDB hundler for db connection and db migration
 func InitDB() {
 	var err error
 	dbHost := os.Getenv("MYSQL_HOST")

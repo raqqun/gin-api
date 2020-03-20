@@ -21,6 +21,7 @@ type login struct {
 
 var identityKey = "id"
 
+// JWT defines the authentication and validation middleware of JWT tokens
 func JWT() *jwt.GinJWTMiddleware {
 	timeout, _ := time.ParseDuration("24h")
 

@@ -10,6 +10,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Users model
 type Users struct {
 	ID          uint      `gorm:"primary_key" json:"ID"`
 	Email       string    `gorm:"size:100;not null;unique" json:"email"`
@@ -20,6 +21,7 @@ type Users struct {
 	getpassword bool
 }
 
+// AfterFind removes password from User struct
 func (u *Users) AfterFind() (err error) {
 	if !u.getpassword {
 		u.Password = ""
@@ -28,6 +30,7 @@ func (u *Users) AfterFind() (err error) {
 	return
 }
 
+// BeforeSave hashes User password
 func (u *Users) BeforeSave(scope *gorm.Scope) (err error) {
 	hashedPassword, err := u.hashPassword(u.Password)
 	if err != nil {
@@ -39,6 +42,7 @@ func (u *Users) BeforeSave(scope *gorm.Scope) (err error) {
 	return
 }
 
+// Save creates User model
 func (u *Users) Save() (*Users, error) {
 
 	err := db.Create(&u).Error
@@ -52,6 +56,7 @@ func (u *Users) Save() (*Users, error) {
 	return u, nil
 }
 
+// Update updates User model
 func (u *Users) Update() (*Users, error) {
 
 	err := db.Model(&u).Omit("id").Updates(&u).Take(&u).Error
@@ -65,6 +70,7 @@ func (u *Users) Update() (*Users, error) {
 	return u, err
 }
 
+// FindAll gets all Users
 func (u *Users) FindAll() (*[]Users, error) {
 
 	users := []Users{}
@@ -78,6 +84,7 @@ func (u *Users) FindAll() (*[]Users, error) {
 	return &users, err
 }
 
+// FindOne gets User by filter
 func (u *Users) FindOne(filter interface{}, shouldHavePassword bool) (*Users, error) {
 	if shouldHavePassword {
 		u.getpassword = true
@@ -92,6 +99,7 @@ func (u *Users) FindOne(filter interface{}, shouldHavePassword bool) (*Users, er
 	return u, err
 }
 
+// FindByID get User by ID
 func (u *Users) FindByID(id uint) (*Users, error) {
 
 	err := db.Model(&Users{}).Where("id = ?", id).Take(&u).Error
@@ -103,6 +111,7 @@ func (u *Users) FindByID(id uint) (*Users, error) {
 	return u, err
 }
 
+// Delete deletes User by ID
 func (u *Users) Delete(id uint) (uint, error) {
 
 	err := db.Model(&Users{}).Where("id = ?", id).Delete(&Users{}).Error
@@ -114,10 +123,12 @@ func (u *Users) Delete(id uint) (uint, error) {
 	return 1, nil
 }
 
+// hashPassword hashes password using bcrypt
 func (u *Users) hashPassword(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), 10)
 }
 
+// VerifyPassword compares user provided password with saved hash
 func (u *Users) VerifyPassword(hash string, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
